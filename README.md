@@ -8,10 +8,7 @@
 
 ## Group Members
 
-- Jackson Goerner (jackson.goerner@monash.edu)
-- Saksham Nagpal (saksham.nagpal@monash.edu)
-- Alexey Ignatiev (alexey.ignatiev@monash.edu)
-- Brendon Taylor (brendon.taylor@monash.edu)
+- Wong Yuan Yi (ywon0095@student.monash.edu)
 
 ## Setup
 
