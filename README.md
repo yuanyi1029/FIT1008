@@ -12,10 +12,37 @@
 
 ## Setup
 
+Note: For all of these you may need to replace `python` with `py` or `python3` depending on your operating system and python version.
+
 ```bash
 python -m pip install virtualenv
 python -m venv venv
-source venv/bin/activate or source venv/Scripts/activate
+```
+
+Next, activate your virtual environment (Must be done every time you open the terminal)
+
+Windows Bash
+```
+source venv/Scripts/activate
+```
+
+Windows CMD
+```
+venv/Scripts/activate
+```
+
+Windows Powershell
+```
+venv/Scripts/activate.ps1
+```
+
+Mac / Linux bash
+```
+source venv/bin/activate
+```
+
+Then install the requirements!
+```
 python -m pip install -r requirements.txt
 ```
 
