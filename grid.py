@@ -21,7 +21,6 @@ class Grid:
             Should be one of DRAW_STYLE_OPTIONS
             This draw style determines the LayerStore used on each grid square.
         - x, y: The dimensions of the grid.
-
         Should also intialise the brush size to the DEFAULT provided as a class variable.
         """
         raise NotImplementedError()
