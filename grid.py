@@ -21,9 +21,21 @@ class Grid:
             Should be one of DRAW_STYLE_OPTIONS
             This draw style determines the LayerStore used on each grid square.
         - x, y: The dimensions of the grid.
+
         Should also intialise the brush size to the DEFAULT provided as a class variable.
         """
-        raise NotImplementedError()
+
+        # if draw_style in Grid.DRAW_STYLE_OPTIONS:
+        #     self.draw_style = Grid.DRAW_STYLE_OPTIONS
+        # else:
+        #     raise ValueError
+
+
+        # DRAW STYLE NOT FULLY IMPLEMENTED
+        self.draw_style = draw_style
+        self.x = x
+        self.y = y
+        self.brush_size = Grid.DEFAULT_BRUSH_SIZE
 
     def increase_brush_size(self):
         """
@@ -31,7 +43,8 @@ class Grid:
         if the brush size is already MAX_BRUSH,
         then do nothing.
         """
-        raise NotImplementedError()
+        if self.brush_size < Grid.MAX_BRUSH:
+            self.brush_size += 1 
 
     def decrease_brush_size(self):
         """
@@ -39,7 +52,8 @@ class Grid:
         if the brush size is already MIN_BRUSH,
         then do nothing.
         """
-        raise NotImplementedError()
+        if self.brush_size > Grid.MIN_BRUSH:
+            self.brush_size -= 1 
 
     def special(self):
         """
