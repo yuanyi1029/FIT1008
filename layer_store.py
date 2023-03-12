@@ -20,7 +20,7 @@ class LayerStore(ABC):
         """
         Returns the colour this square should show, given the current layers.
         """
-        pass
+        return start
 
     @abstractmethod
     def erase(self, layer: Layer) -> bool:
@@ -44,8 +44,41 @@ class SetLayerStore(LayerStore):
     - erase: Remove the single layer. Ignore what is currently selected.
     - special: Invert the colour output.
     """
+    def __init__(self) -> None:
+        self.layer = None
+        self.is_special = False
 
-    pass
+    def add(self, layer: Layer) -> bool:
+        try:
+            self.layer = layer
+            return True
+        except:    
+            return False
+    
+    def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
+        if self.layer:
+            colour_tuple = self.layer.apply(start, timestamp, x, y)
+
+            if self.is_special:
+                colour_tuple = (255-colour_tuple[0], 255-colour_tuple[1], 255-colour_tuple[2])
+
+            return colour_tuple
+        else:
+            return start
+
+    def erase(self, layer: Layer) -> bool:
+        try:
+            self.layer = None
+            return True
+        except:
+            return False
+
+    def special(self):
+        if self.is_special:
+            self.is_special = False
+        else:
+            self.is_special = True
+
 
 class AdditiveLayerStore(LayerStore):
     """

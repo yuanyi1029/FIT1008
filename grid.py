@@ -1,4 +1,7 @@
 from __future__ import annotations
+from data_structures.referential_array import ArrayR
+from layer_store import SetLayerStore
+
 class Grid:
     DRAW_STYLE_SET = "SET"
     DRAW_STYLE_ADD = "ADD"
@@ -25,17 +28,26 @@ class Grid:
         Should also intialise the brush size to the DEFAULT provided as a class variable.
         """
 
-        # if draw_style in Grid.DRAW_STYLE_OPTIONS:
-        #     self.draw_style = Grid.DRAW_STYLE_OPTIONS
-        # else:
-        #     raise ValueError
+        # Initialise Draw Style
+        if draw_style in self.DRAW_STYLE_OPTIONS:
+            self.draw_style = draw_style
+        else:
+            raise ValueError("Invalid Draw Style")
 
+        # Create Grid using Referential Array
+        self.grid = ArrayR(y)
+        for i in range(y):
+            row = ArrayR(x)
+            for j in range(x):
+                set_layer_store = SetLayerStore()
+                row[j] = set_layer_store
+            self.grid[i] = row
 
-        # DRAW STYLE NOT FULLY IMPLEMENTED
-        self.draw_style = draw_style
-        self.x = x
-        self.y = y
+        # Initialise Default Brush Size 
         self.brush_size = Grid.DEFAULT_BRUSH_SIZE
+
+    def __getitem__(self, index):
+        return self.grid[index]
 
     def increase_brush_size(self):
         """
@@ -59,4 +71,12 @@ class Grid:
         """
         Activate the special affect on all grid squares.
         """
-        raise NotImplementedError()
+        for i in range(len(self.grid)):
+            for j in range(len(self.grid[i])):
+                self.grid[i][j].special()
+        # raise NotImplementedError
+
+if __name__ == "__main__":
+    grid = Grid("SET", 10, 5)
+    print(grid[4][9])
+#     # print(k[11])
