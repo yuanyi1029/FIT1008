@@ -3,7 +3,13 @@ import arcade.key as keys
 import math
 from grid import Grid
 from layer_util import get_layers, Layer
-from layers import lighten
+from layers import lighten, black
+
+from data_structures.sorted_list_adt import ListItem, SortedList
+from data_structures.array_sorted_list import ArraySortedList
+from data_structures.referential_array import ArrayR
+
+
 
 class MyWindow(arcade.Window):
     """ Painter Window """
@@ -302,8 +308,33 @@ class MyWindow(arcade.Window):
         px: x position of the brush.
         py: y position of the brush.
         """
-        self.grid[px][py].add(layer)
- 
+
+        testing = []
+
+        all_coordinates = ArrayR(((2 * self.grid.brush_size) + 1 ) ** 2)
+        count = 0
+
+        radius = self.grid.brush_size
+
+        for x in range(px - radius, px + radius + 1):
+            for y in range(py - radius, py + radius + 1):
+                distance = abs(x - px) + abs(y - py)
+                if distance <= radius and (x in range(0, MyWindow.GRID_SIZE_X) and y in range(0, MyWindow.GRID_SIZE_Y)):
+                    testing.append((x,y))
+                    # print(count)
+                    all_coordinates[count] = (x,y)
+                    count += 1
+                    
+
+        # print(testing)
+
+        for coordinates in all_coordinates:
+            if coordinates is not None:
+                # print(f"{coordinates[0]} {coordinates[1]} OK")
+                x = coordinates[0]
+                y = coordinates[1]
+                self.grid[x][y].add(layer)
+
     def on_undo(self):
         """Called when an undo is requested."""
         pass
@@ -314,7 +345,14 @@ class MyWindow(arcade.Window):
 
     def on_special(self):
         """Called when the special action is requested."""
-        pass
+        for x in range(MyWindow.GRID_SIZE_X):
+            for y in range(MyWindow.GRID_SIZE_Y):
+                # print(self.grid[x][y])
+                if self.grid[x][y].layer is None:
+                    self.grid[x][y].add(black)
+                else:
+                    self.grid[x][y].special()
+
 
     def on_replay_start(self):
         """Called when the replay starting is requested."""
@@ -354,3 +392,5 @@ def run_with_func(func, pause=False):
 
 if __name__ == "__main__":
     main()
+
+
