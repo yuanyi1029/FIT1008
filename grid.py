@@ -2,6 +2,8 @@ from __future__ import annotations
 from data_structures.referential_array import ArrayR
 from layer_store import SetLayerStore
 
+# from layers import li
+
 class Grid:
     DRAW_STYLE_SET = "SET"
     DRAW_STYLE_ADD = "ADD"
@@ -27,6 +29,8 @@ class Grid:
 
         Should also intialise the brush size to the DEFAULT provided as a class variable.
         """
+        self.x = x 
+        self.y = y
 
         # Initialise Draw Style
         if draw_style in self.DRAW_STYLE_OPTIONS:
@@ -35,12 +39,11 @@ class Grid:
             raise ValueError("Invalid Draw Style")
 
         # Create Grid using Referential Array
-        self.grid = ArrayR(y)
-        for i in range(y):
-            row = ArrayR(x)
-            for j in range(x):
-                set_layer_store = SetLayerStore()
-                row[j] = set_layer_store
+        self.grid = ArrayR(self.y)
+        for i in range(self.y):
+            row = ArrayR(self.x)
+            for j in range(self.x):
+                row[j] = SetLayerStore()
             self.grid[i] = row
 
         # Initialise Default Brush Size 
@@ -74,7 +77,7 @@ class Grid:
         for i in range(len(self.grid)):
             for j in range(len(self.grid[i])):
                 self.grid[i][j].special()
-        # raise NotImplementedError
+
 
 if __name__ == "__main__":
     grid = Grid("SET", 10, 5)

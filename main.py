@@ -319,9 +319,8 @@ class MyWindow(arcade.Window):
         for x in range(px - radius, px + radius + 1):
             for y in range(py - radius, py + radius + 1):
                 distance = abs(x - px) + abs(y - py)
-                if distance <= radius and (x in range(0, MyWindow.GRID_SIZE_X) and y in range(0, MyWindow.GRID_SIZE_Y)):
-                    testing.append((x,y))
-                    # print(count)
+                if distance <= radius and (x in range(0, self.grid.x) and y in range(0, self.grid.y)):
+                    # testing.append((x,y))
                     all_coordinates[count] = (x,y)
                     count += 1
                     
@@ -345,8 +344,8 @@ class MyWindow(arcade.Window):
 
     def on_special(self):
         """Called when the special action is requested."""
-        for x in range(MyWindow.GRID_SIZE_X):
-            for y in range(MyWindow.GRID_SIZE_Y):
+        for x in range(self.grid.x):
+            for y in range(self.grid.y):
                 # print(self.grid[x][y])
                 if self.grid[x][y].layer is None:
                     self.grid[x][y].add(black)
