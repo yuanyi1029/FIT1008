@@ -3,6 +3,9 @@ from abc import ABC, abstractmethod
 from layer_util import Layer
 from data_structures.queue_adt import CircularQueue
 from data_structures.stack_adt import ArrayStack
+from data_structures.array_sorted_list import ArraySortedList
+from data_structures.sorted_list_adt import ListItem 
+
 
 class LayerStore(ABC):
 
@@ -18,7 +21,7 @@ class LayerStore(ABC):
         pass
 
     @abstractmethod
-    def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
+    def get_color(self, start: tuple[int, int, int], timestamp: int, x: int, y: int) -> tuple[int, int, int]:
         """
         Returns the colour this square should show, given the current layers.
         """
@@ -47,17 +50,32 @@ class SetLayerStore(LayerStore):
     - special: Invert the colour output.
     """
     def __init__(self) -> None:
+        """
+        Initialisation for a SetLayerStore Object. 
+        """
         self.layer = None
         self.is_special = False
 
     def add(self, layer: Layer) -> bool:
+        """
+        Adds a layer object to self.layer of SetLayerStore 
+        - layer: Layer object 
+        """
         try:
             self.layer = layer
             return True
         except:    
             return False
     
-    def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
+    def get_color(self, start: tuple[int, int, int], timestamp: int, x: int, y: int) -> tuple[int, int, int]:
+        """
+        Returns an RGB value in tuple form based on the colour of the added layer.
+        If self.is_special variable is True, returns an inverted RGB value instead 
+        - start: initial RGB value
+        - timestamp: a point of time
+        - x: x coordinate
+        - y: y coordinate 
+        """
         if self.layer:
             colour_tuple = self.layer.apply(start, timestamp, x, y)
 
@@ -69,6 +87,11 @@ class SetLayerStore(LayerStore):
             return start
 
     def erase(self, layer: Layer) -> bool:
+        """
+        Removes a layer object from self.layer of SetLayerStore regardless of 
+        the layer object parameter
+        - layer: Layer object
+        """
         try:
             self.layer = None
             return True
@@ -76,6 +99,10 @@ class SetLayerStore(LayerStore):
             return False
 
     def special(self):
+        """
+        Toggles on or off the self.is_special variable of a SetLayerStore
+        to get a special effect when using the get_color() method
+        """
         if self.is_special:
             self.is_special = False
         else:
@@ -90,10 +117,17 @@ class AdditiveLayerStore(LayerStore):
     - special: Reverse the order of current layers (first becomes last, etc.)
     """
     def __init__(self) -> None:
-        self.layers = CircularQueue(20)
+        """
+        Initialisation for an AdditiveLayerStore Object. 
+        """        
+        self.layers = CircularQueue(20 * 100)
         self.is_special = False
 
     def add(self, layer: Layer) -> bool:
+        """
+        Adds a newest layer object to the end of self.layers of AdditiveLayerStore 
+        - layer: Layer object 
+        """        
         try:
             self.layers.append(layer)
             return True
@@ -101,7 +135,16 @@ class AdditiveLayerStore(LayerStore):
             return False
     
     def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
-
+        """
+        Returns an RGB value in tuple form based on all colours in the layers of
+        AdditiveLayerStore.
+        If self.is_special variable is True, the order of the layers is inverted,
+        which returns a different RGB value instead 
+        - start: initial RGB value
+        - timestamp: a point of time
+        - x: x coordinate
+        - y: y coordinate 
+        """
         if self.is_special:
             stack = ArrayStack(len(self.layers))
             loop_count = len(self.layers)
@@ -126,6 +169,11 @@ class AdditiveLayerStore(LayerStore):
 
 
     def erase(self, layer: Layer) -> bool:
+        """
+        Removes the oldest added layer object from self.layers of 
+        AdditiveLayerStore regardless of the layer object parameter
+        - layer: Layer object
+        """        
         try:
             self.layers.serve()
             return True
@@ -133,6 +181,10 @@ class AdditiveLayerStore(LayerStore):
             return False
 
     def special(self):
+        """
+        Toggles on or off the self.is_special variable of a AdditiveLayerStore
+        to get a special effect when using the get_color() method
+        """
         if self.is_special:
             self.is_special = False
         else:
@@ -149,16 +201,34 @@ class SequenceLayerStore(LayerStore):
         In the event of two layers being the median names, pick the lexicographically smaller one.
     """
     def __init__(self) -> None:
-        pass
+        self.layers = ArraySortedList(20 * 100)
+        self.is_special = False
 
     def add(self, layer: Layer) -> bool:
-        pass
+        try:
+            self.layers.add(ListItem(layer, layer.index))
+            return True
+        except:
+            return False
     
     def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
-        pass
+        colour_tuple = start
+
+        for i in range(len(self.layers)):
+            layer = self.layers[i].value
+            colour_tuple = layer.apply(colour_tuple, timestamp, x, y)
+
+        return colour_tuple
 
     def erase(self, layer: Layer) -> bool:
-        pass
+        try:
+            self.layers.delete_at_index(self.layers.index(ListItem(layer, layer.index)))
+            return True
+        except:
+            return False
 
     def special(self):
-        pass
+        if self.is_special:
+            self.is_special = False
+        else:
+            self.is_special = True

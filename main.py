@@ -324,12 +324,8 @@ class MyWindow(arcade.Window):
                     all_coordinates[count] = (x,y)
                     count += 1
                     
-
-        # print(testing)
-
         for coordinates in all_coordinates:
             if coordinates is not None:
-                # print(f"{coordinates[0]} {coordinates[1]} OK")
                 x = coordinates[0]
                 y = coordinates[1]
                 self.grid[x][y].add(layer)

@@ -2,24 +2,27 @@ from grid import Grid
 from layers import black, lighten, rainbow, invert, red, blue, green
 from layer_store import SetLayerStore, AdditiveLayerStore
 from data_structures.queue_adt import CircularQueue
+from data_structures.array_sorted_list import ArraySortedList
+from data_structures.sorted_list_adt import SortedList, ListItem
 
 if __name__ == "__main__":
-    ls = AdditiveLayerStore()
+    # print(rainbow.index)
+    # print(black.index)
+    # print(lighten.index)
+    # print(invert.index)
+    # print(red.index)
+    # print(blue.index)
+    # print(green.index)
 
-    ls.add(black)
-    ls.add(red)
-    ls.add(lighten)
+    ls = ArraySortedList(10)
 
-    print(ls.get_color((0, 0, 0), 40, 0, 0))
-    # print(list(ls.layers.array))
+    item = ListItem(rainbow, rainbow.index)
+    item2 = ListItem(black, black.index)
+    item3 = ListItem(red, red.index)
 
-    # for i in range(len(ls.layers)):
-    #     print(ls.layers.array[i])
-    
+    ls.add(item3)
+    ls.add(item2)
+    ls.add(item)
 
-    ls.special()
-
-    print(ls.get_color((0, 0, 0), 40, 0, 0))
-    # for i in range(len(ls.layers)):
-    #     print(ls.layers.array[i])
+    print(ls)
     

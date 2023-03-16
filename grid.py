@@ -1,8 +1,7 @@
 from __future__ import annotations
 from data_structures.referential_array import ArrayR
-from layer_store import SetLayerStore
+from layer_store import SetLayerStore, AdditiveLayerStore, SequenceLayerStore
 
-# from layers import li
 
 class Grid:
     DRAW_STYLE_SET = "SET"
@@ -37,19 +36,28 @@ class Grid:
             self.draw_style = draw_style
         else:
             raise ValueError("Invalid Draw Style")
+        
+        # Initialise Default Brush Size 
+        self.brush_size = Grid.DEFAULT_BRUSH_SIZE
 
         # Create Grid using Referential Array
         self.grid = ArrayR(self.y)
         for i in range(self.y):
             row = ArrayR(self.x)
             for j in range(self.x):
-                row[j] = SetLayerStore()
+                if self.draw_style == self.DRAW_STYLE_OPTIONS[0]:
+                    row[j] = SetLayerStore()
+                elif self.draw_style == self.DRAW_STYLE_OPTIONS[1]:
+                    row[j] = AdditiveLayerStore()
+                elif self.draw_style == self.DRAW_STYLE_OPTIONS[2]:
+                    row[j] = SequenceLayerStore()
             self.grid[i] = row
 
-        # Initialise Default Brush Size 
-        self.brush_size = Grid.DEFAULT_BRUSH_SIZE
-
     def __getitem__(self, index):
+        """
+        Magic method for a Grid object allow indexing
+        to obtain a certain grid pixel 
+        """
         return self.grid[index]
 
     def increase_brush_size(self):
@@ -80,6 +88,7 @@ class Grid:
 
 
 if __name__ == "__main__":
-    grid = Grid("SET", 10, 5)
-    print(grid[4][9])
+    grid = Grid("ADD", 10, 5)
+    print(Grid.DRAW_STYLE_OPTIONS[0])
+    # print(grid[4][9])
 #     # print(k[11])
