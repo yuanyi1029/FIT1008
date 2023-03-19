@@ -121,7 +121,6 @@ class AdditiveLayerStore(LayerStore):
         Initialisation for an AdditiveLayerStore Object. 
         """        
         self.layers = CircularQueue(20 * 100)
-        self.is_special = False
 
     def add(self, layer: Layer) -> bool:
         """
@@ -138,25 +137,11 @@ class AdditiveLayerStore(LayerStore):
         """
         Returns an RGB value in tuple form based on all colours in the layers of
         AdditiveLayerStore.
-        If self.is_special variable is True, the order of the layers is inverted,
-        which returns a different RGB value instead 
         - start: initial RGB value
         - timestamp: a point of time
         - x: x coordinate
         - y: y coordinate 
         """
-        if self.is_special:
-            stack = ArrayStack(len(self.layers))
-            loop_count = len(self.layers)
-
-            for i in range(loop_count):
-                stack.push(self.layers.serve())
-
-            for j in range(loop_count):
-                self.layers.append(stack.pop())
-
-            self.is_special = False
-        
 
         colour_tuple = start
         
@@ -182,13 +167,18 @@ class AdditiveLayerStore(LayerStore):
 
     def special(self):
         """
-        Toggles on or off the self.is_special variable of a AdditiveLayerStore
-        to get a special effect when using the get_color() method
+        Inverts the layers inside the layers Queue, in which the bottom 
+        layer is now the top while the top layer is now at the bottom.
+        Using the get_color() method will return a different RGB value now
         """
-        if self.is_special:
-            self.is_special = False
-        else:
-            self.is_special = True
+        stack = ArrayStack(len(self.layers))
+        loop_count = len(self.layers)
+
+        for i in range(loop_count):
+            stack.push(self.layers.serve())
+
+        for j in range(loop_count):
+            self.layers.append(stack.pop())
 
 
 class SequenceLayerStore(LayerStore):
@@ -202,12 +192,17 @@ class SequenceLayerStore(LayerStore):
     """
     def __init__(self) -> None:
         self.layers = ArraySortedList(20 * 100)
-        self.is_special = False
 
     def add(self, layer: Layer) -> bool:
         try:
-            self.layers.add(ListItem(layer, layer.index))
-            return True
+            item = ListItem(layer, layer.index)
+
+            if item not in self.layers:
+                self.layers.add(item)
+                return True
+            else:
+                return False 
+            
         except:
             return False
     
@@ -228,7 +223,20 @@ class SequenceLayerStore(LayerStore):
             return False
 
     def special(self):
-        if self.is_special:
-            self.is_special = False
-        else:
-            self.is_special = True
+        temp = ArraySortedList(len(self.layers))
+
+        for i in range(len(self.layers)):
+            temp_layer = ListItem(self.layers[i].value, self.layers[i].value.name)
+            temp.add(temp_layer)
+
+        median = (len(self.layers) - 1) // 2
+
+        try:
+            item_to_delete = ListItem(temp[median].value, temp[median].value.index)
+            self.layers.remove(item_to_delete)
+
+        except:
+            pass
+    
+
+            

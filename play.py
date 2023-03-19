@@ -1,6 +1,6 @@
 from grid import Grid
 from layers import black, lighten, rainbow, invert, red, blue, green
-from layer_store import SetLayerStore, AdditiveLayerStore
+from layer_store import SetLayerStore, AdditiveLayerStore, SequenceLayerStore
 from data_structures.queue_adt import CircularQueue
 from data_structures.array_sorted_list import ArraySortedList
 from data_structures.sorted_list_adt import SortedList, ListItem
@@ -14,15 +14,32 @@ if __name__ == "__main__":
     # print(blue.index)
     # print(green.index)
 
-    ls = ArraySortedList(10)
+    # ls = ArraySortedList(10)
 
-    item = ListItem(rainbow, rainbow.index)
-    item2 = ListItem(black, black.index)
-    item3 = ListItem(red, red.index)
 
-    ls.add(item3)
-    ls.add(item2)
-    ls.add(item)
+    # ls.add(item3)
+    # ls.add(item2)
+    # ls.add(item)
 
-    print(ls)
+    # print(ls)
     
+    # print("applea" < "appleb")
+
+    s = SequenceLayerStore()
+
+    # item = ListItem(rainbow, rainbow.index)
+    # item2 = ListItem(black, black.index)
+    # item3 = ListItem(red, red.index)
+
+    s.add(black)
+    s.add(red)
+    s.add(rainbow)
+
+    s.add(red)
+
+
+    print(s.layers)
+
+    # a = ListItem(blue, blue.index)
+
+    # print(a in s.layers)

@@ -8,6 +8,8 @@ from layers import lighten, black
 from data_structures.sorted_list_adt import ListItem, SortedList
 from data_structures.array_sorted_list import ArraySortedList
 from data_structures.referential_array import ArrayR
+from action import PaintStep, PaintAction
+from undo import UndoTracker
 
 
 
@@ -293,7 +295,7 @@ class MyWindow(arcade.Window):
 
     def on_init(self):
         """Initialisation that occurs after the system initialisation."""
-        pass
+        self.tracker = UndoTracker()
 
     def on_reset(self):
         """Called when a window reset is requested."""
@@ -309,8 +311,6 @@ class MyWindow(arcade.Window):
         py: y position of the brush.
         """
 
-        testing = []
-
         all_coordinates = ArrayR(((2 * self.grid.brush_size) + 1 ) ** 2)
         count = 0
 
@@ -320,7 +320,6 @@ class MyWindow(arcade.Window):
             for y in range(py - radius, py + radius + 1):
                 distance = abs(x - px) + abs(y - py)
                 if distance <= radius and (x in range(0, self.grid.x) and y in range(0, self.grid.y)):
-                    # testing.append((x,y))
                     all_coordinates[count] = (x,y)
                     count += 1
                     
@@ -328,6 +327,7 @@ class MyWindow(arcade.Window):
             if coordinates is not None:
                 x = coordinates[0]
                 y = coordinates[1]
+                # step = PaintStep
                 self.grid[x][y].add(layer)
 
     def on_undo(self):
@@ -342,12 +342,7 @@ class MyWindow(arcade.Window):
         """Called when the special action is requested."""
         for x in range(self.grid.x):
             for y in range(self.grid.y):
-                # print(self.grid[x][y])
-                if self.grid[x][y].layer is None:
-                    self.grid[x][y].add(black)
-                else:
-                    self.grid[x][y].special()
-
+                self.grid[x][y].special()
 
     def on_replay_start(self):
         """Called when the replay starting is requested."""

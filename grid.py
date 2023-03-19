@@ -1,5 +1,6 @@
 from __future__ import annotations
 from data_structures.referential_array import ArrayR
+from layers import lighten
 from layer_store import SetLayerStore, AdditiveLayerStore, SequenceLayerStore
 
 
@@ -47,6 +48,7 @@ class Grid:
             for j in range(self.x):
                 if self.draw_style == self.DRAW_STYLE_OPTIONS[0]:
                     row[j] = SetLayerStore()
+                    row[j].add(lighten)
                 elif self.draw_style == self.DRAW_STYLE_OPTIONS[1]:
                     row[j] = AdditiveLayerStore()
                 elif self.draw_style == self.DRAW_STYLE_OPTIONS[2]:
