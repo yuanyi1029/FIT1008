@@ -27,7 +27,6 @@ class UndoTracker:
 
         :return: The action that was undone, or None.
         """
-        pass
         if len(self.actions) == 0:
             return None
         else:
