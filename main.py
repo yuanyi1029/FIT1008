@@ -333,9 +333,11 @@ class MyWindow(arcade.Window):
             if coordinates is not None:
                 x = coordinates[0]
                 y = coordinates[1]
+                grid_changed = self.grid[x][y].add(layer)
+            
+            if grid_changed:
                 step = PaintStep((x,y), layer)
                 steps.append(step)
-                self.grid[x][y].add(layer)
 
         action = PaintAction(steps, False)
 

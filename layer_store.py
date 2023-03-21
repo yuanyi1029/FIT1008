@@ -62,8 +62,11 @@ class SetLayerStore(LayerStore):
         - layer: Layer object 
         """
         try:
-            self.layer = layer
-            return True
+            if self.layer is not None and self.layer.index == layer.index:
+                return False
+            else:
+                self.layer = layer
+                return True
         except:    
             return False
     
