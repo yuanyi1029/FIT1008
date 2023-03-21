@@ -302,9 +302,6 @@ class MyWindow(arcade.Window):
     def on_reset(self):
         """Called when a window reset is requested."""
         pass
-        # for x in range(self.grid.x):
-        #     for y in range(self.grid.y):
-        #         self.grid[x][y] = None
 
     def on_paint(self, layer: Layer, px, py):
         """

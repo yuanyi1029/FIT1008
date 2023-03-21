@@ -53,18 +53,24 @@ class SetLayerStore(LayerStore):
         """
         Initialisation for a SetLayerStore Object. 
         """
+        # self.layer stores a single layer 
         self.layer = None
         self.is_special = False
 
     def add(self, layer: Layer) -> bool:
         """
-        Adds a layer object to self.layer of SetLayerStore 
+        Adds a layer object to self.layer of SetLayerStore, returns True
+        only if a layer has been changed  
         - layer: Layer object 
         """
         try:
+            # Check if previous layer is same with new layer 
+
             if self.layer is not None and self.layer.index == layer.index:
+                # Same layer - No changes (return False)
                 return False
             else:
+                # Different layer - Update layer (return True)
                 self.layer = layer
                 return True
         except:    
@@ -79,12 +85,16 @@ class SetLayerStore(LayerStore):
         - x: x coordinate
         - y: y coordinate 
         """
-        if self.layer:
+        # Check self.layer, if empty then return initial colour
+        if self.layer is not None:
+
+            # Obtain colour of the layer, invert if special() was called
             colour_tuple = self.layer.apply(start, timestamp, x, y)
 
             if self.is_special:
                 colour_tuple = (255-colour_tuple[0], 255-colour_tuple[1], 255-colour_tuple[2])
 
+            # Return the RGB colour as a tuple 
             return colour_tuple
         else:
             return start
@@ -96,6 +106,7 @@ class SetLayerStore(LayerStore):
         - layer: Layer object
         """
         try:
+            # Set self.layer to None (empty) return True because layer was changed
             self.layer = None
             return True
         except:
@@ -106,6 +117,7 @@ class SetLayerStore(LayerStore):
         Toggles on or off the self.is_special variable of a SetLayerStore
         to get a special effect when using the get_color() method
         """
+        # Toggle self.is_special variable 
         if self.is_special:
             self.is_special = False
         else:
@@ -123,6 +135,7 @@ class AdditiveLayerStore(LayerStore):
         """
         Initialisation for an AdditiveLayerStore Object. 
         """        
+        # self.layers stores multiple layers orderly in a queue
         self.layers = CircularQueue(20 * 100)
 
     def add(self, layer: Layer) -> bool:
@@ -131,6 +144,7 @@ class AdditiveLayerStore(LayerStore):
         - layer: Layer object 
         """        
         try:
+            # Add a layer to self.layers, return True because layer was changed
             self.layers.append(layer)
             return True
         except:
@@ -146,13 +160,17 @@ class AdditiveLayerStore(LayerStore):
         - y: y coordinate 
         """
 
+        # Get initial colour tuple
         colour_tuple = start
         
+        # Loop through oldest to newest layer
         for i in range(len(self.layers)):
+            # Apply each layer's colour to colour tuple
             layer = self.layers.serve()
             colour_tuple = layer.apply(colour_tuple, timestamp, x, y)
             self.layers.append(layer)
 
+        # Return the RGB colour as a tuple 
         return colour_tuple
 
 
@@ -163,6 +181,7 @@ class AdditiveLayerStore(LayerStore):
         - layer: Layer object
         """        
         try:
+            # Serve out oldest layer, return True because layer was changed
             self.layers.serve()
             return True
         except:
@@ -175,11 +194,16 @@ class AdditiveLayerStore(LayerStore):
         Using the get_color() method will return a different RGB value now
         """
         stack = ArrayStack(len(self.layers))
+
+        # Get loop count from initial length of self.layers
         loop_count = len(self.layers)
 
+        # Loop "loop_count" times, serve out each layer and push to stack
         for i in range(loop_count):
             stack.push(self.layers.serve())
 
+        # Loop "loop_count" times, pop the newest added layer in stakc 
+        # and append to self.layers queue
         for j in range(loop_count):
             self.layers.append(stack.pop())
 
@@ -194,46 +218,91 @@ class SequenceLayerStore(LayerStore):
         In the event of two layers being the median names, pick the lexicographically smaller one.
     """
     def __init__(self) -> None:
+        """
+        Initialisation for an SequentialLayerStore Object. 
+        """        
+        # self.layers stores multiple layers orderly in a SortedList based on index
         self.layers = ArraySortedList(20 * 100)
 
     def add(self, layer: Layer) -> bool:
+        """
+        Adds layer object to self.layers of SequentialLayerStore only if it does 
+        not already exist, layers objects are sorted based on its index from lowest
+        to highest 
+        - layer: Layer object 
+        """       
         try:
+            # Create a ListItem for the sorted list
             item = ListItem(layer, layer.index)
 
+            # Check if the ListItem is already in self layers 
             if item not in self.layers:
+                # Not in self.layers - Add layer (return True)
                 self.layers.add(item)
                 return True
             else:
+                # Already in self.layers - No changes (return False)
                 return False 
             
         except:
             return False
     
     def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
+        """
+        Returns an RGB value in tuple form based on all colours in the layers of
+        SequentialLayerStore.
+        - start: initial RGB value
+        - timestamp: a point of time
+        - x: x coordinate
+        - y: y coordinate 
+        """
+        # Get initial colour tuple
         colour_tuple = start
 
+        # Loop through self.layers from smallest to largest index
         for i in range(len(self.layers)):
+            # Apply each layer's colour to colour tuple
             layer = self.layers[i].value
             colour_tuple = layer.apply(colour_tuple, timestamp, x, y)
 
+        # Return the RGB colour as a tuple 
         return colour_tuple
 
     def erase(self, layer: Layer) -> bool:
+        """
+        Removes a layer object from self.layers of SequentialLayerStore that was 
+        passed as a parameter
+        - layer: Layer object
+        """   
         try:
+            # Create a temporary ListItem, gets its index in self.layers and delete it 
             self.layers.delete_at_index(self.layers.index(ListItem(layer, layer.index)))
             return True
         except:
             return False
 
     def special(self):
+        """
+        Deletes the median layer object in self.layers based on lexicographical
+        order, in which layers are arranged based on its name and the middle 
+        layer will be deleted in self.layers.
+        Using the get_color() method will return a different RGB value now
+        """
+
+        # Create a temporary SortedList
         temp = ArraySortedList(len(self.layers))
 
+        # Loop through self.layers, create ListItem but use layer name as a key, 
+        # add it to the temporary Sorted List
         for i in range(len(self.layers)):
             temp_layer = ListItem(self.layers[i].value, self.layers[i].value.name)
             temp.add(temp_layer)
 
+        # Calculate the median value 
         median = (len(self.layers) - 1) // 2
 
+        # Get the median layer, create a ListItem for it, find it in self.layers 
+        # and delete it
         try:
             item_to_delete = ListItem(temp[median].value, temp[median].value.index)
             self.layers.remove(item_to_delete)

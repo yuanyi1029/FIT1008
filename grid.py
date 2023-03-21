@@ -43,8 +43,12 @@ class Grid:
 
         # Create Grid using Referential Array
         self.grid = ArrayR(self.y)
+
+        # Loop through y times (Numbers of rows)
         for i in range(self.y):
+            # Create row of size x (Number of pixels in a row)
             row = ArrayR(self.x)
+            # Loop through x times (Number of pixels), create LayerStore for each pixel
             for j in range(self.x):
                 if self.draw_style == self.DRAW_STYLE_OPTIONS[0]:
                     row[j] = SetLayerStore()
@@ -53,6 +57,7 @@ class Grid:
                     row[j] = AdditiveLayerStore()
                 elif self.draw_style == self.DRAW_STYLE_OPTIONS[2]:
                     row[j] = SequenceLayerStore()
+            # Add each LayerStore to the row 
             self.grid[i] = row
 
     def __getitem__(self, index):
@@ -68,6 +73,7 @@ class Grid:
         if the brush size is already MAX_BRUSH,
         then do nothing.
         """
+        # Check if current brush size does not exceed max size
         if self.brush_size < Grid.MAX_BRUSH:
             self.brush_size += 1 
 
@@ -77,6 +83,7 @@ class Grid:
         if the brush size is already MIN_BRUSH,
         then do nothing.
         """
+        # Check if current brush size is above minimum size
         if self.brush_size > Grid.MIN_BRUSH:
             self.brush_size -= 1 
 
@@ -84,13 +91,9 @@ class Grid:
         """
         Activate the special affect on all grid squares.
         """
+        # Loops through each row 
         for i in range(len(self.grid)):
+            # Loops through each LayerStore 
             for j in range(len(self.grid[i])):
+                # Activate special() method 
                 self.grid[i][j].special()
-
-
-if __name__ == "__main__":
-    grid = Grid("ADD", 10, 5)
-    print(Grid.DRAW_STYLE_OPTIONS[0])
-    # print(grid[4][9])
-#     # print(k[11])
