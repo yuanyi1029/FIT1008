@@ -336,7 +336,7 @@ class MyWindow(arcade.Window):
                 step = PaintStep((x,y), layer)
                 steps.append(step)
 
-        action = PaintAction(steps, False)
+        action = PaintAction(steps)
 
         self.tracker.add_action(action)
         self.replay.add_action(action)
@@ -357,9 +357,22 @@ class MyWindow(arcade.Window):
 
     def on_special(self):
         """Called when the special action is requested."""
+        steps = []
+        
         for x in range(self.grid.x):
             for y in range(self.grid.y):
                 self.grid[x][y].special()
+
+                try:
+                    step = PaintStep((x,y), self.grid[x][y].layer)
+                except:
+                    step = PaintStep((x,y), self.grid[x][y].layers)
+                steps.append(step)
+
+        action = PaintAction(steps, True)
+
+        self.tracker.add_action(action)
+        self.replay.add_action(action)
 
     def on_replay_start(self):
         """Called when the replay starting is requested."""

@@ -28,17 +28,24 @@ class Grid:
         - x, y: The dimensions of the grid.
 
         Should also intialise the brush size to the DEFAULT provided as a class variable.
+
+        Best Case Complexity: O(xy)
+        Worst Case Complexity: O(xy)
+        
+        Where x and y are the input parameters of the __init__ method which represents
+        the x and y dimensions of the created grid
         """
+        # Initialise x, y instance variables
         self.x = x 
         self.y = y
 
-        # Initialise Draw Style
+        # Initialise draw style
         if draw_style in self.DRAW_STYLE_OPTIONS:
             self.draw_style = draw_style
         else:
             raise ValueError("Invalid Draw Style")
         
-        # Initialise Default Brush Size 
+        # Initialise default brush size 
         self.brush_size = Grid.DEFAULT_BRUSH_SIZE
 
         # Create Grid using Referential Array
@@ -64,7 +71,11 @@ class Grid:
         """
         Magic method for a Grid object allow indexing
         to obtain a certain grid pixel 
+
+        Best Case Complexity: O(1)
+        Worst Case Complexity: O(1)
         """
+        # Return the LayerStore at the index of self.grid
         return self.grid[index]
 
     def increase_brush_size(self):
@@ -72,6 +83,9 @@ class Grid:
         Increases the size of the brush by 1,
         if the brush size is already MAX_BRUSH,
         then do nothing.
+
+        Best Case Complexity: O(1)
+        Worst Case Complexity: O(1)
         """
         # Check if current brush size does not exceed max size
         if self.brush_size < Grid.MAX_BRUSH:
@@ -82,6 +96,9 @@ class Grid:
         Decreases the size of the brush by 1,
         if the brush size is already MIN_BRUSH,
         then do nothing.
+
+        Best Case Complexity: O(1)
+        Worst Case Complexity: O(1)
         """
         # Check if current brush size is above minimum size
         if self.brush_size > Grid.MIN_BRUSH:
@@ -90,6 +107,14 @@ class Grid:
     def special(self):
         """
         Activate the special affect on all grid squares.
+
+        Best Case Complexity: O(ij)
+        Worst Case Complexity: O(ij)
+
+        Where i is the length of the self.grid which represents 
+        the number of rows and j is the length of each row in 
+        self.grid (self.grid[i]) which represents the number of
+        LayerStores in a row  
         """
         # Loops through each row 
         for i in range(len(self.grid)):
