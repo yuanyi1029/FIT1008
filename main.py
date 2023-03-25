@@ -295,7 +295,12 @@ class MyWindow(arcade.Window):
     # STUDENT PART
 
     def on_init(self):
-        """Initialisation that occurs after the system initialisation."""
+        """
+        Initialisation that occurs after the system initialisation.
+
+        Best Case Complexity: O(1)
+        Worst Case Complexity: O(1)
+        """
         self.tracker = UndoTracker()
         self.replay = ReplayTracker()
 
@@ -342,21 +347,27 @@ class MyWindow(arcade.Window):
         self.replay.add_action(action)
 
     def on_undo(self):
-        """Called when an undo is requested."""
+        """
+        Called when an undo is requested.
+        """
         undo = self.tracker.undo(self.grid)
 
         if undo is not None:
             self.replay.add_action(undo, is_undo=True)
 
     def on_redo(self):
-        """Called when a redo is requested."""
+        """
+        Called when a redo is requested.
+        """
         redo = self.tracker.redo(self.grid)
 
         if redo is not None:
             self.replay.add_action(redo)
 
     def on_special(self):
-        """Called when the special action is requested."""
+        """
+        Called when the special action is requested.
+        """
         steps = []
         
         for x in range(self.grid.x):
@@ -375,7 +386,9 @@ class MyWindow(arcade.Window):
         self.replay.add_action(action)
 
     def on_replay_start(self):
-        """Called when the replay starting is requested."""
+        """
+        Called when the replay starting is requested.
+        """
         self.replay.start_replay()
 
     def on_replay_next_step(self) -> bool:

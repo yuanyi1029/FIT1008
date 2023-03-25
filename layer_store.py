@@ -10,7 +10,6 @@ from layer_util import get_layers
 
 
 class LayerStore(ABC):
-
     def __init__(self) -> None:
         pass
 
@@ -50,13 +49,13 @@ class SetLayerStore(LayerStore):
     - add: Set the single layer.
     - erase: Remove the single layer. Ignore what is currently selected.
     - special: Invert the colour output.
-
-    Best Case Complexity: O(1)
-    Worst Case Complexity: O(1)
     """
     def __init__(self) -> None:
         """
         Initialisation for a SetLayerStore Object. 
+
+        Best Case Complexity: O(1)
+        Worst Case Complexity: O(1)
         """
         # self.layer stores a single layer 
         self.layer = None
@@ -155,15 +154,17 @@ class AdditiveLayerStore(LayerStore):
     - erase: Remove the first layer that was added. Ignore what is currently selected.
     - special: Reverse the order of current layers (first becomes last, etc.)
     """
+    MAX_CAPACITY = len(get_layers()) * 100
+
     def __init__(self) -> None:
         """
         Initialisation for an AdditiveLayerStore Object. 
 
-        Best Case Complexity: O(????????)
-        Worst Case Complexity: O(????????)
+        Best Case Complexity: O(1)
+        Worst Case Complexity: O(1)
         """        
         # self.layers stores multiple layers orderly in a queue
-        self.layers = CircularQueue(20 * 100)
+        self.layers = CircularQueue(AdditiveLayerStore.MAX_CAPACITY)
 
     def add(self, layer: Layer) -> bool:
         """
@@ -180,7 +181,7 @@ class AdditiveLayerStore(LayerStore):
         except:
             return False
     
-    def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
+    def get_color(self, start: tuple[int, int, int], timestamp: int, x: int, y: int) -> tuple[int, int, int]:
         """
         Returns an RGB value in tuple form based on all colours in the layers of
         AdditiveLayerStore.
@@ -189,12 +190,15 @@ class AdditiveLayerStore(LayerStore):
         - x: x coordinate
         - y: y coordinate 
 
-        Best Case Complexity: O(len(self.layers))
-        Worst Case Complexity: O(len(self.layers))
+        Best Case Complexity: O(1)
+        Worst Case Complexity: O(len(self.layers) x n)
 
-        Best and Worst Case Complexity is O(len(self.layers)) because this method
-        loops through the number of layers in self.layers times to use each 
-        layer's apply() method to get the colour_tuple.  
+        Where n is the time complexity of the apply function of a layer. Some layer's
+        apply function has a slower complexity than O(1) such as the sparkle layer's 
+        apply function with a complexity of O(timestamp). Best Case happens when there
+        is only 1 layer in the Circular Queue which has an apply function of O(1). Worst
+        case happens when there are many layers in the Circular Queue and an apply 
+        function of layers that has a slower complexity than O(1)
         """
 
         # Get initial colour tuple
@@ -277,6 +281,9 @@ class SequenceLayerStore(LayerStore):
         returned indexes are all deducted by 1 to obtain the real index value of each 
         layer.
         ---------------------------------------------------------------------------------
+        
+        Best Case Complexity: O(1)
+        Worst Case Complexity: O(1)
         """        
         # self.layers stores the index of multiple layers orderly in a BinarySet
         self.layers = BSet()
@@ -287,6 +294,9 @@ class SequenceLayerStore(LayerStore):
         not already exist, layers objects are sorted based on its index from lowest
         to highest 
         - layer: Layer object 
+
+        Best Case Complexity: O(1)
+        Worst Case Complexity: O(1)
         """
         try:
             # Check if the index of a layer is already in self.layers 
@@ -300,7 +310,7 @@ class SequenceLayerStore(LayerStore):
         except:
             return False 
     
-    def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
+    def get_color(self, start: tuple[int, int, int], timestamp: int, x: int, y: int) -> tuple[int, int, int]:
         """
         Returns an RGB value in tuple form based on all colours in the layers of
         SequentialLayerStore.
@@ -308,6 +318,18 @@ class SequenceLayerStore(LayerStore):
         - timestamp: a point of time
         - x: x coordinate
         - y: y coordinate 
+
+        Best Case Complexity: O(1)
+        Worst Case Complexity: O(k x n)
+
+        Where k is the largest index in self.layers, and n is the time complexity of the 
+        apply function of a layer. The loop would at least take the "largest index in 
+        self.layers" times to complete, therefore the largest element in the BSet matters
+        more than the total number of elements. The time complexity of a layer's apply 
+        function also plays a role in overall Complexity because different apply functions 
+        may have different implementations. Best case happens when the highest index in the 
+        Bset is 1 (Also means there is only 1 element) and also its layer's apply function
+        has a time complexity of O(1), this way the loop only goes through once.
         """
         # Get initial colour tuple
         colour_tuple = start
@@ -342,6 +364,9 @@ class SequenceLayerStore(LayerStore):
         Removes a layer object from self.layers of SequentialLayerStore that was 
         passed as a parameter
         - layer: Layer object
+
+        Best Case Complexity: O(1)
+        Worst Case Complexity: O(1)
         """   
         try:
             # Remove the index of a layer given from self.layers
@@ -356,6 +381,16 @@ class SequenceLayerStore(LayerStore):
         order, in which layers are arranged based on its name and the middle 
         layer will be deleted in self.layers.
         Using the get_color() method will return a different RGB value now
+
+        Best Case Complexity: O(n)
+        Worst Case Complexity: O(k x n)
+
+        Where k is the largest index in self.layers, and n is the time complexity of the 
+        add function in ArraySortedList. The loop would at least take the "largest index in 
+        self.layers" times to complete, therefore the largest element in the BSet matters
+        more than the total number of elements. The time complexity of the add function also
+        affects the overall time complexity. Best case happens when the highest index in the 
+        Bset is 1 (Also means there is only 1 element), this way the loop only goes through once.
         """
         # Get all the existing layers 
         all_layers = get_layers()
@@ -381,7 +416,7 @@ class SequenceLayerStore(LayerStore):
                 layer = all_layers[layer_index]
                 layer_list_item = ListItem(layer, layer.name)
                 templist.add(layer_list_item)
-                
+
             current += 1
 
         # Calculate the median value 
