@@ -6,17 +6,18 @@ from data_structures.referential_array import ArrayR
 from data_structures.queue_adt import CircularQueue
 
 class ReplayTracker:
-    
+    MAX_ACTIONS = 10000
+
     def __init__(self):
         """
         Initialisation for an ReplayTracker Object. an ArrayStacks is required to keep track
         of a User's actions. Another instance variable is required to keep track if the 
         ReplayTracker object should stop taking in PaintActions and start playing them back.
         
-        Best Case Complexity: O(1)
-        Worst Case Complexity: O(1)
+        Best Case Complexity: O(MAX_ACTIONS)
+        Worst Case Complexity: O(MAX_ACTIONS)
         """   
-        self.actions = CircularQueue(10000)
+        self.actions = CircularQueue(ReplayTracker.MAX_ACTIONS)
         self.end = False
 
     def start_replay(self) -> None:
@@ -37,8 +38,8 @@ class ReplayTracker:
         - action: PaintAction object
         - is_undo: Boolean to indentify if a PaintAction is an undo action. Defaults to False
 
-        Best Case Complexity: O(1)
-        Worst Case Complexity: O(1)
+        Best Case Complexity: O(comp)
+        Worst Case Complexity: O(comp)
         """
         # Only proceed when ReplayTracker is still taking actions (self.end=False)
         if self.end is False:

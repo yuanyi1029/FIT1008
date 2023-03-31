@@ -67,8 +67,8 @@ class SetLayerStore(LayerStore):
         only if a layer has been changed  
         - layer: Layer object   
 
-        Best Case Complexity: O(1)
-        Worst Case Complexity: O(1)
+        Best Case Complexity: O(comp)
+        Worst Case Complexity: O(comp)
         """
         try:
             # Check if previous layer is same with new layer 
@@ -160,8 +160,8 @@ class AdditiveLayerStore(LayerStore):
         """
         Initialisation for an AdditiveLayerStore Object. 
 
-        Best Case Complexity: O(1)
-        Worst Case Complexity: O(1)
+        Best Case Complexity: O(MAX_CAPACITY)
+        Worst Case Complexity: O(MAX_CAPACITY)
         """        
         # self.layers stores multiple layers orderly in a queue
         self.layers = CircularQueue(AdditiveLayerStore.MAX_CAPACITY)
@@ -190,15 +190,15 @@ class AdditiveLayerStore(LayerStore):
         - x: x coordinate
         - y: y coordinate 
 
-        Best Case Complexity: O(1)
+        Best Case Complexity: O(len(self.layers))
         Worst Case Complexity: O(len(self.layers) x n)
 
         Where n is the time complexity of the apply function of a layer. Some layer's
         apply function has a slower complexity than O(1) such as the sparkle layer's 
-        apply function with a complexity of O(timestamp). Best Case happens when there
-        is only 1 layer in the Circular Queue which has an apply function of O(1). Worst
-        case happens when there are many layers in the Circular Queue and an apply 
-        function of layers that has a slower complexity than O(1)
+        apply function with a complexity of O(timestamp). Best Case happens when all
+        of the layers in the Circular Queue has an apply function of O(1). Worst
+        case happens when a layer in the Circular Queue has an apply function with 
+        a slower complexity than O(1)
         """
 
         # Get initial colour tuple
@@ -214,7 +214,6 @@ class AdditiveLayerStore(LayerStore):
 
         # Return the RGB colour as a tuple 
         return colour_tuple
-
 
     def erase(self, layer: Layer) -> bool:
         """
@@ -319,7 +318,7 @@ class SequenceLayerStore(LayerStore):
         - x: x coordinate
         - y: y coordinate 
 
-        Best Case Complexity: O(1)
+        Best Case Complexity: O(k)
         Worst Case Complexity: O(k x n)
 
         Where k is the largest index in self.layers, and n is the time complexity of the 
@@ -327,9 +326,8 @@ class SequenceLayerStore(LayerStore):
         self.layers" times to complete, therefore the largest element in the BSet matters
         more than the total number of elements. The time complexity of a layer's apply 
         function also plays a role in overall Complexity because different apply functions 
-        may have different implementations. Best case happens when the highest index in the 
-        Bset is 1 (Also means there is only 1 element) and also its layer's apply function
-        has a time complexity of O(1), this way the loop only goes through once.
+        may have different implementations. Best Case happens when all of the layers in the
+        Circular Queue has an apply function of O(1).
         """
         # Get initial colour tuple
         colour_tuple = start
@@ -382,15 +380,17 @@ class SequenceLayerStore(LayerStore):
         layer will be deleted in self.layers.
         Using the get_color() method will return a different RGB value now
 
-        Best Case Complexity: O(n)
+        Best Case Complexity: O(k x n)
         Worst Case Complexity: O(k x n)
 
         Where k is the largest index in self.layers, and n is the time complexity of the 
-        add function in ArraySortedList. The loop would at least take the "largest index in 
+        add() function in ArraySortedList. The loop would at least take the "largest index in 
         self.layers" times to complete, therefore the largest element in the BSet matters
         more than the total number of elements. The time complexity of the add function also
-        affects the overall time complexity. Best case happens when the highest index in the 
-        Bset is 1 (Also means there is only 1 element), this way the loop only goes through once.
+        affects the overall time complexity which is also affected by the time complexity of 
+        the _index_to_add() function of ArraySortedList. Best case happens when the index to 
+        add to the ArraySortedList is exactly in the middle of the List, causing the time 
+        complexity of the add() function to be O(comp)
         """
         # Get all the existing layers 
         all_layers = get_layers()

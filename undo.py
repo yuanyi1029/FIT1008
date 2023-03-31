@@ -4,17 +4,20 @@ from grid import Grid
 from data_structures.stack_adt import ArrayStack
 
 class UndoTracker:
+    MAX_ACTIONS = 10000
+
+
     def __init__(self):
         """
         Initialisation for an UndoTracker Object. 2 ArrayStacks are required to keep track
         of a User's actions. 1 ArrayStack for its history actions (self.actions) and 1 
         ArrayStack for actions that were undo'ed (self.parents) 
         
-        Best Case Complexity: O(1)
-        Worst Case Complexity: O(1)
+        Best Case Complexity: O(MAX_ACTIONS)
+        Worst Case Complexity: O(MAX_ACTIONS)
         """        
-        self.actions = ArrayStack(10000)
-        self.parents = ArrayStack(10000)
+        self.actions = ArrayStack(UndoTracker.MAX_ACTIONS)
+        self.parents = ArrayStack(UndoTracker.MAX_ACTIONS)
 
     def add_action(self, action: PaintAction) -> None:
         """
@@ -23,8 +26,8 @@ class UndoTracker:
         feel free to exit early and not add the action.
         - action: PaintAction object
 
-        Best Case Complexity: O(1)
-        Worst Case Complexity: O(1)
+        Best Case Complexity: O(comp)
+        Worst Case Complexity: O(comp)
         """
         # Push a PaintAction when to its history of actions 
         self.actions.push(action)

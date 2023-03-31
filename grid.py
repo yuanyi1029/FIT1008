@@ -84,8 +84,8 @@ class Grid:
         if the brush size is already MAX_BRUSH,
         then do nothing.
 
-        Best Case Complexity: O(1)
-        Worst Case Complexity: O(1)
+        Best Case Complexity: O(comp)
+        Worst Case Complexity: O(comp)
         """
         # Check if current brush size does not exceed max size
         if self.brush_size < Grid.MAX_BRUSH:
@@ -97,8 +97,8 @@ class Grid:
         if the brush size is already MIN_BRUSH,
         then do nothing.
 
-        Best Case Complexity: O(1)
-        Worst Case Complexity: O(1)
+        Best Case Complexity: O(comp)
+        Worst Case Complexity: O(comp)
         """
         # Check if current brush size is above minimum size
         if self.brush_size > Grid.MIN_BRUSH:
