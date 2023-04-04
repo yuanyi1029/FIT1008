@@ -3,7 +3,16 @@ import arcade.key as keys
 import math
 from grid import Grid
 from layer_util import get_layers, Layer
-from layers import lighten
+from layers import lighten, black
+
+from data_structures.sorted_list_adt import ListItem, SortedList
+from data_structures.array_sorted_list import ArraySortedList
+from data_structures.referential_array import ArrayR
+from action import PaintStep, PaintAction
+from undo import UndoTracker
+from replay import ReplayTracker
+
+
 
 class MyWindow(arcade.Window):
     """ Painter Window """
@@ -286,53 +295,204 @@ class MyWindow(arcade.Window):
     # STUDENT PART
 
     def on_init(self):
-        """Initialisation that occurs after the system initialisation."""
-        pass
+        """
+        Initialisation that occurs after the system initialisation. Create an
+        UndoTracker and ReplayTracker object
+
+        Best Case Complexity: O(1)
+        Worst Case Complexity: O(1)
+        """
+        # Create an UndoTracker and ReplayTracker object
+        self.tracker = UndoTracker()
+        self.replay = ReplayTracker()
 
     def on_reset(self):
         """Called when a window reset is requested."""
         pass
 
-    def on_paint(self, layer: Layer, px, py):
+    def on_paint(self, layer: Layer, px: int, py: int):
         """
         Called when a grid square is clicked on, which should trigger painting in the vicinity.
         Vicinity squares outside of the range [0, GRID_SIZE_X) or [0, GRID_SIZE_Y) can be safely ignored.
+        - layer: The layer being applied.
+        - px: x position of the brush.
+        - py: y position of the brush.
 
-        layer: The layer being applied.
-        px: x position of the brush.
-        py: y position of the brush.
+        Best Case Complexity: O(xy)
+        Worst Case Complexity: O(xy)
+
+        Where x is the range between the left and right sides of the possible affected grid square and y is 
+        the range between the top and bottom sides of the possible affected grid square
         """
-        pass
+        steps = []
+
+        # Create array to store maximum possible affected coordinates
+        # Size (Let o be middle point and x be affected point):
+        # Let paintbrush size = 2:
+        # xxxxx
+        # xxxxx
+        # xxoxx
+        # xxxxx
+        # xxxxx
+        all_coordinates = ArrayR(((2 * self.grid.brush_size) + 1 ) ** 2)
+        count = 0
+
+        radius = self.grid.brush_size
+
+        # Loop through all possible affected coordinates
+        for x in range(px - radius, px + radius + 1):
+            for y in range(py - radius, py + radius + 1):
+                # Calculate Manhattan distance between midpoint and coordinate
+                distance = abs(x - px) + abs(y - py)
+                # Add the affected coordinate to all_coordinates if within Manhattan radius of brushsize
+                if distance <= radius and (x in range(0, self.grid.x) and y in range(0, self.grid.y)):
+                    all_coordinates[count] = (x,y)
+                    count += 1
+
+        # Loop through each affected coordinates
+        for coordinates in all_coordinates:
+            if coordinates is not None:
+                x = coordinates[0]
+                y = coordinates[1]
+                # Add layer to affected coordinates, 
+                # Return True/False depending if the LayerStore has changed
+                grid_changed = self.grid[x][y].add(layer)
+            
+            # If the grid has changed, create a PaintStep for it 
+            if grid_changed:
+                step = PaintStep((x,y), layer)
+                steps.append(step)
+
+        # Create a PaintAction consisting of many PaintSteps
+        action = PaintAction(steps)
+
+        # Record the PaintAction to UndoTracker object (self.tracker) and
+        # ReplayTracker object (self.replay)
+        self.tracker.add_action(action)
+        self.replay.add_action(action)
 
     def on_undo(self):
-        """Called when an undo is requested."""
-        pass
+        """
+        Called when an undo is requested.
+
+        Best Case Complexity: O(n)
+        Worst Case Complexity: O(n)
+
+        Where n is the time complexity of the undo() method in self.tracker. Based on the UndoTracker's
+        implementation, the undo() method has a time complexity of O(n) where n is the time complexity
+        of the add() method for each Layer Store which is different for each LayerStore
+        """
+        # Undo an action 
+        undo = self.tracker.undo(self.grid)
+
+        # Add the action to ReplayTracker object (self.tracker)
+        if undo is not None:
+            self.replay.add_action(undo, is_undo=True)
 
     def on_redo(self):
-        """Called when a redo is requested."""
-        pass
+        """
+        Called when a redo is requested.
+
+        Best Case Complexity: O(n)
+        Worst Case Complexity: O(n)
+
+        Where n is the time complexity of the redo() method in self.tracker. Based on the UndoTracker's
+        implementation, the redo() method has a time complexity of O(n) where n is the time complexity
+        of the erase() method for each LayerStore which is different for each LayerStore
+        """
+        # Redo an action
+        redo = self.tracker.redo(self.grid)
+
+        # Add the action to ReplayTracker object (self.tracker)
+        if redo is not None:
+            self.replay.add_action(redo)
 
     def on_special(self):
-        """Called when the special action is requested."""
-        pass
+        """
+        Called when the special action is requested.
+
+        Best Case Complexity: O((self.grid.x) x (self.grid.y) x n)
+        Worst Case Complexity: O((self.grid.x) x (self.grid.y) x n)
+
+        Where n is the time complexity of the special() function for each LayerStore. Different LayerStore
+        in a grid have different implementations for the special() function therefore the time complexity
+        may also be different
+        """
+        steps = []
+        
+        # Loop through each rows and columns
+        for y in range(self.grid.y):
+            for x in range(self.grid.x):
+                # Execute special() for each LayerStore
+                self.grid[y][x].special()
+
+                # Create a PaintStep for each LayerStore
+                try:
+                    step = PaintStep((x,y), self.grid[y][x].layer)
+                except:
+                    step = PaintStep((x,y), self.grid[y][x].layers)
+
+                steps.append(step)
+
+        # Create a PaintAction consisting of many PaintSteps
+        action = PaintAction(steps, True)
+
+        # Record the PaintAction to UndoTracker object (self.tracker) and
+        # ReplayTracker object (self.replay)
+        self.tracker.add_action(action)
+        self.replay.add_action(action)
 
     def on_replay_start(self):
-        """Called when the replay starting is requested."""
-        pass
+        """
+        Called when the replay starting is requested.
+
+        Best Case Complexity: O(1)
+        Worst Case Complexity: O(1)
+        """
+        # Stops accepting any PaintActions to ReplayTracker (self.tracker) 
+        self.replay.start_replay()
 
     def on_replay_next_step(self) -> bool:
         """
         Called when the next step of the replay is requested.
         Returns whether the replay is finished.
+
+        Best Case Complexity: O(n)
+        Worst Case Complexity: O(n)  
+
+        Where n is the time complexity of the play_next_action() method in self.replay. Based on the
+        ReplayTracker's implementation, the play_next_action() method has a time complexity of O(n)
+        where n is the time complexity of either the undo_apply() method or redo_apply() method whichever
+        larger for worst case and whichever smaller for best case.
         """
-        return True
+        # Play a PaintAction, return True to represent no more PaintActions to replay
+        end = self.replay.play_next_action(self.grid)
+
+        if end:
+            # Clear all PaintActions when replay is finished
+            self.replay.actions.clear()
+            return True
+        else:
+            return False 
 
     def on_increase_brush_size(self):
-        """Called when an increase to the brush size is requested."""
+        """
+        Called when an increase to the brush size is requested.
+
+        Best Case Complexity: O(comp)
+        Worst Case Complexity: O(comp)
+        """
+        # Checks current brush size and increases it by 1 if not exceeding maximum
         self.grid.increase_brush_size()
 
     def on_decrease_brush_size(self):
-        """Called when a decrease to the brush size is requested."""
+        """
+        Called when a decrease to the brush size is requested.
+        
+        Best Case Complexity: O(comp)
+        Worst Case Complexity: O(comp)
+        """
+        # Checks current brush size and decreases it by 1 if not exceeding minimum
         self.grid.decrease_brush_size()
 
 def main():
@@ -354,3 +514,5 @@ def run_with_func(func, pause=False):
 
 if __name__ == "__main__":
     main()
+
+

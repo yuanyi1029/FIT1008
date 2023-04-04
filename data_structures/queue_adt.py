@@ -63,7 +63,6 @@ class CircularQueue(Queue[T]):
         self.rear = 0
         self.array = ArrayR(max(self.MIN_CAPACITY,max_capacity))
 
-
     def append(self, item: T) -> None:
         """ Adds an element to the rear of the queue.
         :pre: queue is not full
